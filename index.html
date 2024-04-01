@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
+
+        body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: url('https://img.itch.zone/aW1hZ2UvMTIxNjU4LzU2MDQxMC5wbmc=/original/hCUwLQ.png') no-repeat center center;
+    background-size: cover;
+}
+
+@media (max-width: 768px) { /* Um breakpoint comum para dispositivos móveis */
+    body, html {
+        background-size: 100% 100%; /* Faz a imagem cobrir a tela inteira sem cortar, mas pode distorcer a imagem */
+        /* Alternativamente, mantenha 'cover' se a distorção for um problema */
+    }
+}
+        p {
+        position: fixed;
+        bottom: 0;
+        width: 100%; 
+        text-align: center;
+        margin-bottom: 5vh;
+        color: rgb(203, 203, 203);
+        font-family: "Pixelify Sans", sans-serif;
+        font-size: 3vh;
+    }
+
+        .rain {
+            width: 1px;
+            height: 100px;
+            background: rgba(93, 182, 255, 0.6);
+            position: absolute;
+            will-change: transform;
+        }
+        @keyframes fall {
+            0% { top: -120px; }
+            100% { top: 100vh; }
+        }
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: none;
+            opacity: 0;
+            z-index: 9999;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        .cross {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            display: block;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        .cross:before, .cross:after {
+            content: '';
+            position: absolute;
+            background-color: rgb(255, 0, 0);
+        }
+        .cross:before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+        .cross:after {
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="flash" id="flash"></div>
+    <div class="cross" id="cross"></div>
+    <script>
+        const qtdGotas = 100;
+        
+        function criarGotas() {
+            for (let i = 0; i < qtdGotas; i++) {
+                const gota = document.createElement('div');
+                gota.className = 'rain';
+                document.body.appendChild(gota);
+
+                posicionaGota(gota);
+            }
+        }
+
+        function posicionaGota(gota) {
+            gota.style.left = `${Math.random() * window.innerWidth}px`;
+            gota.style.animation = `fall ${Math.random() * 2 + 1}s linear infinite ${Math.random() * -2}s`;
+        }
+
+        criarGotas();
+
+        const cross = document.getElementById('cross');
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', function(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function updateCrossPosition() {
+            const delay = 10;
+            const currentLeft = parseInt(window.getComputedStyle(cross).left, 10) || 0;
+            const currentTop = parseInt(window.getComputedStyle(cross).top, 10) || 0;
+
+            const newLeft = currentLeft + (mouseX - currentLeft) / delay;
+            const newTop = currentTop + (mouseY - currentTop) / delay;
+
+            cross.style.left = `${newLeft}px`;
+            cross.style.top = `${newTop}px`;
+
+            requestAnimationFrame(updateCrossPosition);
+        }
+
+        updateCrossPosition();
+
+        document.addEventListener('click', function() {
+            const flash = document.getElementById('flash');
+            flash.style.display = 'block';
+            flash.style.opacity = '1';
+            
+            setTimeout(() => {
+                flash.style.opacity = '0';
+            }, 50);
+
+            setTimeout(() => {
+                flash.style.display = 'none';
+            }, 550);
+        });
+    </script>
+    <p>Clique na tela!</p>
+</body>
+</html>
